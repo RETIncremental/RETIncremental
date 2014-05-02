@@ -1,0 +1,108 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+
+.panel-default{
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+.nav-pills{
+    margin-top:10px;
+}
+
+#resources{
+    margin-top:10px;
+}
+
+#resources .btn{
+    margin-right:10px;
+}
+
+.popup-div {
+  position:absolute;
+  z-index:200; /* aaaalways on top*/
+  padding: 5px;
+  margin-left: 10px;
+  margin-top: 5px;
+  //width: 250px;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: grey;
+  color: white;
+  font-size: 0.95em;
+}
+
+#buildings{
+
+}
+
+#upgrades{
+    display:none;
+}
+
+.upgradesSubMenu {
+
+}
+
+.upgradesSubMenu.nav-pills>li.active>a, .upgradesSubMenu.nav-pills>li.active>a:hover, .upgradesSubMenu.nav-pills>li.active>a:focus{
+    background-color: #d58512;
+}
+
+#buildingsUpgrades{
+    display:block;
+}
+
+#jobsUpgrades{
+    display:none;
+}
+
+#boostsUpgrades{
+    display:none;
+}
+
+#jobs{
+    display:none;
+}
+
+#boosts{
+    display:none;
+}
+
+.nav .nav-pills a{
+    
+}
+
+.features{}
+
+.table-striped{
+    margin-top:20px;
+}
+
+.table-striped th{
+    text-align: center;
+}
+
+.table-striped td{
+    padding:10px;
+    vertical-align: middle;
+}
+
+.buildingImg{
+    border:1px solid grey;
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -494,6 +494,13 @@ var jobUpgradeEffect = function(job){
     };
 };
 
+var boost = function(name, description){
+  this.name = name;  
+  this.description = description;
+  this.boostDuration = 0;
+  this.currentBoost
+};
+
 //Global variables
 
 var myGame = new game();

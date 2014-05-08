@@ -18,3 +18,49 @@ function formatNumber(value, precision)
     //if value is of type string we alread constructed it, if not, the original value was smaller than 1mil, so fix the decimals
     return ( typeof value === 'string') ? value : value.toFixed(precision);    
 }
+
+//@param time in seconds!
+function formatTime(time){
+    var secondsRaw = time%60;
+    var secondsString = (secondsRaw.toString().length > 1)? secondsRaw : "0"+secondsRaw;
+    var minutesRaw = (Math.floor(time/60))%60;
+    var minutesString = (minutesRaw.toString().length > 1) ? minutesRaw : "0"+minutesRaw;
+    var hoursRaw  = (Math.floor(time/(60*60)))%24;
+    var hoursString = (hoursRaw.toString().length > 1 ) ? hoursRaw : "0"+hoursRaw;
+    var days = Math.floor(time/(60*60*24));
+    return (days >= 1) ? days+"d - "+hoursString+":"+minutesString+":"+secondsString : hoursString+":"+minutesString+":"+secondsString;
+}
+
+function getResourceGlyphicon(name){
+    switch (name) {
+            case "Money":
+                return "usd";
+                break;
+            case "Political power":
+                return "globe";
+                break;
+            case "Social influence":
+                return "user";
+                break;
+            case "Criminal power":
+                return "screenshot";
+                break;
+        }
+        ;
+}
+
+//UI stuff
+
+$(".nav.nav-pills.mainMenu").click(function(event) {
+    $(".panel.panel-default.features").children().hide();
+    $(".nav.nav-pills.mainMenu").children().filter("li").removeClass("active");
+    $("#" + event.target.id).parent().addClass("active");
+    $("#" + event.target.id.toString().split("TabLink")[0]).show();
+});
+
+$(".nav.nav-pills.upgradesSubMenu").click(function(event) {
+    $(".panel.panel-default.upgradeTypes").children().hide();
+    $(".nav.nav-pills.upgradesSubMenu").children().filter("li").removeClass("active");
+    $("#" + event.target.id).parent().addClass("active");
+    $("#" + event.target.id.toString().split("TabLink")[0]).show();
+});

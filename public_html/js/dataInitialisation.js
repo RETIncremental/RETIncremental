@@ -258,3 +258,32 @@ function initializeJobs(game) {
 
     return output;
 }
+
+function initializeBoosts(game){
+    var output = [];
+    
+    var taxdodgeBoost = new boost("Set up tax dodge scheme","Dodge taxes, get money! Only for a limited time tough, authorities will catch up");
+    taxdodgeBoost.resourceTarget = game.resources[0];
+    taxdodgeBoost.imgPath = "img/placeholder.png";
+    taxdodgeBoost.listener = game;
+    taxdodgeBoost.prices = [1, 2, 3, 4];
+    taxdodgeBoost.boostDuration = 300;
+    taxdodgeBoost.boostPercentPerClick = 0.2;
+    output.push(taxdodgeBoost);
+    
+    var marketingcampaignBoost = new boost("Run a widespread marketing campaign","Your face on every streetcorner!");
+    marketingcampaignBoost.resourceTarget = game.resources[0];
+    marketingcampaignBoost.imgPath = "img/placeholder.png";
+    marketingcampaignBoost.listener = game;
+    marketingcampaignBoost.prices = [1, 2, 3, 4];
+    marketingcampaignBoost.boostDuration = 600;
+    marketingcampaignBoost.boostPercentPerSecond = 0.2;
+    output.push(marketingcampaignBoost);
+    
+    
+    output.map(function(item) {
+        item.initializeUI();
+    });
+
+    return output;
+}

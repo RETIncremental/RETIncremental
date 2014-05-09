@@ -65,7 +65,8 @@ var game = function() {
     this.buildings = initializeBuildings(this);
     this.jobs = initializeJobs(this);
     this.upgrades = initializeUpgrades(this);
-    
+    this.boosts = initializeBoosts(this);
+
 
     this.handleTick = function() {
         this.resources.map(function(resource) {
@@ -94,6 +95,9 @@ var game = function() {
                 item.upgradeEffect.applyUpgrade();
                 item.disablePurchase();
             }
+            if (item instanceof boost) {
+                item.setBoostStatus(true);
+            }
 
             this.updateResourceIncrements();
         }
@@ -108,6 +112,12 @@ var game = function() {
         this.buildings.map(function(building) {
             building.resourceTarget.increasePerClick += building.increasePerClick * building.amountOwned;
             building.resourceTarget.increasePerSecond += building.increasePerSecond * building.amountOwned;
+        });
+        this.boosts.map(function(boost) {
+            if (boost.isEnabled) {
+                boost.resourceTarget.increasePerClick *= 1 + boost.boostPercentPerClick;
+                boost.resourceTarget.increasePerSecond *= 1 + boost.boostPercentPerSecond;
+            }
         });
     }.bind(this);
 };
@@ -134,11 +144,11 @@ var building = function(name, description) {
 
     this.updateProduction = function() {
         //recalcutate after multiplier
-        this.increasePerClick = this.baseIncreasePerClick*this.increasePerClickMultiplier;
-        this.increasePerSecond = this.baseIncreasePerSecond*this.increasePerSecondMultiplier;
-        
+        this.increasePerClick = this.baseIncreasePerClick * this.increasePerClickMultiplier;
+        this.increasePerSecond = this.baseIncreasePerSecond * this.increasePerSecondMultiplier;
+
         //update label
-        
+
         this.productionLabelIcon = getResourceGlyphicon(this.resourceTarget.name);
         this.productionLabel.innerHTML =
                 ((this.increasePerClick > 0) ? "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.increasePerClick, 2) + "/click<br/>" : "") +
@@ -255,7 +265,7 @@ var upgrade = function(name, description) {
         this.productionLabel = document.createElement("p");
         this.productionLabelIcon = getResourceGlyphicon(this.upgradeEffect.getResourceTarget());
         this.productionLabel.innerHTML = this.upgradeEffect.getProductionLabelInnerHTML(this.productionLabelIcon);
-        
+
         this.button = document.createElement("button");
         this.button.setAttribute("class", "btn btn-default");
         this.button.innerHTML = "Buy";
@@ -269,7 +279,7 @@ var upgrade = function(name, description) {
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.productionLabel);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.button);
 
-        $("#"+this.upgradeCategory+" > .table-striped").append(this.tableRow);
+        $("#" + this.upgradeCategory + " > .table-striped").append(this.tableRow);
     };
 
     this.handleLabelOnmouseover = function(event) {
@@ -304,12 +314,12 @@ var buildingUpgradeEffect = function(building) {
 
         this.buildingTarget.updateProduction();
     };
-    
-    this.getResourceTarget = function(){
+
+    this.getResourceTarget = function() {
         return building.resourceTarget.name;
     };
-    
-    this.getProductionLabelInnerHTML = function(icon){
+
+    this.getProductionLabelInnerHTML = function(icon) {
         var innerHtml =
                 ((this.flatPerClickIncrement > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber(this.flatPerClickIncrement, 2) + "/click<br/>" : "") +
                 ((this.flatPerSecondIncrement > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber(this.flatPerSecondIncrement, 2) + "/second" : "") +
@@ -339,10 +349,10 @@ var job = function(name, description) {
     this.rewardAmountLevelUpMultiplier = 1.5;
     this.imgPath = "";
 
-    this.updateRewardAndResetTime = function(){
-        this.resetTime = Math.round(this.baseResetTime*this.resetTimeMultiplier);
-        this.rewardAmount = this.baseRewardAmount*this.rewardAmountMultiplier;
-        
+    this.updateRewardAndResetTime = function() {
+        this.resetTime = Math.round(this.baseResetTime * this.resetTimeMultiplier);
+        this.rewardAmount = this.baseRewardAmount * this.rewardAmountMultiplier;
+
         this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
     };
 
@@ -416,10 +426,10 @@ var job = function(name, description) {
         //TODO check if job available
         if (this.currentTime === 0) {
             //reset time
-            this.resetTime = this.baseResetTime*this.resetTimeMultiplier;
+            this.resetTime = this.baseResetTime * this.resetTimeMultiplier;
             this.currentTime = this.resetTime;
             //set button label
-            this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> "+formatTime(this.currentTime);
+            this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> " + formatTime(this.currentTime);
             //rewards
             this.resourceTarget.amount += this.rewardAmount;
 
@@ -430,7 +440,7 @@ var job = function(name, description) {
                 this.level++;
                 this.xpNextLevel *= this.xpNextLevelMultiplier;
                 this.baseRewardAmount *= this.rewardAmountLevelUpMultiplier;
-                this.rewardAmount = this.baseRewardAmount*this.rewardAmountMultiplier;
+                this.rewardAmount = this.baseRewardAmount * this.rewardAmountMultiplier;
 
                 //adjust rewards td
                 this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
@@ -446,7 +456,7 @@ var job = function(name, description) {
     this.countdownTimer = function() {
         if (this.currentTime > 0) {
             this.currentTime--;
-            this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> "+formatTime(this.currentTime);
+            this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> " + formatTime(this.currentTime);
         }
         if (this.currentTime === 0) {
             clearInterval(this.counter);
@@ -464,41 +474,164 @@ var job = function(name, description) {
     };
 };
 
-var jobUpgradeEffect = function(job){
+var jobUpgradeEffect = function(job) {
     this.jobTarget = job;
     this.flatResetTimeReduction = 0;
     this.flatResourceRewardIncrease = 0;
     this.percentResetTimeReduction = 0;
     this.percentResourceRewardIncrease = 0;
-    
-    this.applyUpgrade = function(){
+
+    this.applyUpgrade = function() {
         this.jobTarget.baseRewardAmount += this.flatResourceRewardIncrease;
         this.jobTarget.baseResetTime -= this.flatResetTimeReduction;
         this.jobTarget.rewardAmountMultiplier += this.percentResourceRewardIncrease;
         this.jobTarget.resetTimeMultiplier -= this.percentResetTimeReduction;
-        
+
         this.jobTarget.updateRewardAndResetTime();
     };
-    
-    this.getResourceTarget = function(){
+
+    this.getResourceTarget = function() {
         return this.jobTarget.resourceTarget.name;
     };
-    
-    this.getProductionLabelInnerHTML = function(icon){
+
+    this.getProductionLabelInnerHTML = function(icon) {
         var innerHTML =
-                ((this.flatResetTimeReduction > 0) ? "-<span class='glyphicon glyphicon-time'></span>" + formatTime(this.flatResetTimeReduction) + "/click<br/>" : "") +
+                ((this.flatResetTimeReduction > 0) ? "-<span class='glyphicon glyphicon-time'></span>" + formatTime(this.flatResetTimeReduction) + " cooldown<br/>" : "") +
                 ((this.flatResourceRewardIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber(this.flatResourceRewardIncrease, 2) + "/job" : "") +
-                ((this.percentResetTimeReduction > 0) ? "-<span class='glyphicon glyphicon-time'></span>" + formatNumber((this.percentResetTimeReduction) * 100, 2) + "%<br/>" : "") +
+                ((this.percentResetTimeReduction > 0) ? "-<span class='glyphicon glyphicon-time'></span>" + formatNumber((this.percentResetTimeReduction) * 100, 2) + "% cooldown<br/>" : "") +
                 ((this.percentResourceRewardIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber((this.percentResourceRewardIncrease) * 100, 2) + "%/jobs" : "");
         return innerHTML;
     };
 };
 
-var boost = function(name, description){
-  this.name = name;  
-  this.description = description;
-  this.boostDuration = 0;
-  this.currentBoost
+var boost = function(name, description) {
+    this.name = name;
+    this.description = description;
+    this.boostDuration = 0;
+    this.currentBoostTime = 0;
+    this.boostPercentPerClick = 0;
+    this.boostPercentPerSecond = 0;
+    this.isEnabled;
+    this.prices = [20, 0, 10, 10];
+    this.resourceTarget = null;
+    this.imgPath = "";
+    this.counter = null;
+    this.listener = null;
+    this.fireUpdate = function() {
+        this.listener.handleItemBuy(this);
+    };
+
+    this.setBoostStatus = function(isActive) {
+        this.isEnabled = isActive;
+        this.button.disabled = isActive;
+        
+        if (isActive) {
+            this.currentBoostTime = this.boostDuration;
+            this.counter = setInterval(this.countdownTimer, 1000);      
+        }
+        if(!isActive){
+            this.listener.updateResourceIncrements();
+        }
+        
+        this.updateBoostTimeBar();
+    };
+    
+    this.countdownTimer = function() {
+        if (this.currentBoostTime > 0) {
+            this.currentBoostTime--;
+        }
+        if (this.currentBoostTime === 0) {
+            clearInterval(this.counter);
+            this.setBoostStatus(false);
+        }
+        this.updateBoostTimeBar();
+
+    }.bind(this);
+
+    this.initializeUI = function() {
+
+        this.tableRow = document.createElement("tr");
+
+        this.boostLabel = document.createElement("p");
+        this.boostLabel.innerHTML = this.name;
+        this.boostLabel.addEventListener("mousemove", function(event) {
+            this.handleLabelOnmouseover(event);
+        }.bind(this), false);
+        this.boostLabel.addEventListener("mouseout", function(event) {
+            this.handleLabelOnmouseout(event);
+        }.bind(this), false);
+
+        this.priceLabel = document.createElement("p");
+        this.priceLabel.innerHTML =
+                ((this.prices[0] > 0) ? "<span class='glyphicon glyphicon-usd'></span>" + formatNumber(this.prices[0], 2) + "<br/>" : "") +
+                ((this.prices[1] > 0) ? "<span class='glyphicon glyphicon-globe'></span>" + formatNumber(this.prices[1], 2) + "<br/>" : "") +
+                ((this.prices[2] > 0) ? "<span class='glyphicon glyphicon-user'></span>" + formatNumber(this.prices[2], 2) + "<br/>" : "") +
+                ((this.prices[3] > 0) ? "<span class='glyphicon glyphicon-screenshot'></span>" + formatNumber(this.prices[3], 2) : "");
+
+        this.boostTimeDivWrapper = document.createElement("div");
+        this.boostTimeDivWrapper.setAttribute("class", "progress progress-striped active");
+        this.boostTimeDivWrapper.style.minWidth = "300px";
+        this.boostTimeBarDiv = document.createElement("div");
+        this.boostTimeBarDiv.setAttribute("class", "progress-bar");
+        this.boostTimeBarDiv.setAttribute("role", "progressbar");
+        this.boostTimeBarDiv.setAttribute("aria-valuenow", this.currentBoostTime);
+        this.boostTimeBarDiv.setAttribute("aria-valuemin", 0);
+        this.boostTimeBarDiv.setAttribute("aria-valuemax", this.boostDuration);
+        this.boostTimeBarDiv.style.width = ((this.currentBoostTime / this.boostDuration) * 100) + "%";
+        this.boostTimeBarDiv.innerHTML = formatTime(this.currentBoostTime);
+        this.boostTimeDivWrapper.appendChild(this.boostTimeBarDiv);
+
+        this.productionLabel = document.createElement("p");
+        this.productionLabelIcon = getResourceGlyphicon(this.resourceTarget.name);
+        this.productionLabel.innerHTML =
+                ((this.boostPercentPerClick > 0) ? "Duration: " + formatTime(this.boostDuration) + "<br/><br/>+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerClick * 100, 2) + "%/click" : "") +
+                ((this.boostPercentPerSecond > 0) ? "Duration: " + formatTime(this.boostDuration) + "<br/><br/>+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerSecond * 100, 2) + "%/second" : "")
+                ;
+
+
+        this.button = document.createElement("button");
+        this.button.setAttribute("class", "btn btn-default");
+        this.button.innerHTML = "Buy boost";
+        this.button.addEventListener("click", function(event) {
+            this.handleButtonClick(event);
+        }.bind(this), false);
+
+
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.boostLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.boostTimeDivWrapper);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.productionLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.priceLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.button);
+
+        $("#boosts > .table-striped").append(this.tableRow);
+    };
+
+    this.handleLabelOnmouseover = function(event) {
+        $(".popup-div").remove();
+        var mouseoverDiv = document.createElement("div");
+        mouseoverDiv.setAttribute("class", "popup-div");
+        var mouseoverLabel = document.createElement("p");
+        mouseoverLabel.innerHTML = this.description;
+        mouseoverDiv.appendChild(mouseoverLabel);
+        mouseoverDiv.style.top = (event.pageY + 5) + "px";
+        mouseoverDiv.style.left = (event.pageX + 5) + "px";
+        $("body").append(mouseoverDiv);
+    };
+
+    this.handleLabelOnmouseout = function() {
+        $(".popup-div").remove();
+    };
+
+    this.handleButtonClick = function() {
+        this.fireUpdate();
+    };
+
+    this.updateBoostTimeBar = function() {
+        this.boostTimeBarDiv.setAttribute("aria-valuenow", this.currentBoostTime);
+        this.boostTimeBarDiv.style.width = ((this.currentBoostTime / this.boostDuration) * 100) + "%";
+        this.boostTimeBarDiv.innerHTML = formatTime(this.currentBoostTime);
+    };
+
 };
 
 //Global variables

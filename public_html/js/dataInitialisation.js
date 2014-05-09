@@ -224,6 +224,35 @@ var initializeUpgrades = function(game) {
     aflipburgers.upgradeEffect.percentResetTimeReduction = 0.2;
     output.push(aflipburgers);
     
+    //Boost upgrades
+    var taxdodgePercentBoostDurationUpgrade = new upgrade("Paper shredder Deluxe","Avoid the authorities a bit longer by cleaning up your paperwork");
+    taxdodgePercentBoostDurationUpgrade.imgPath = "img/placeholder.png";
+    taxdodgePercentBoostDurationUpgrade.listener = game;
+    taxdodgePercentBoostDurationUpgrade.prices = [1, 2, 3, 4];
+    taxdodgePercentBoostDurationUpgrade.upgradeCategory = "boostsUpgrades";
+    taxdodgePercentBoostDurationUpgrade.upgradeEffect = new boostUpgradeEffect(game.boosts[0]);
+    taxdodgePercentBoostDurationUpgrade.upgradeEffect.percentBoostTimeIncrease = 0.2;
+    output.push(taxdodgePercentBoostDurationUpgrade);
+    
+    var taxdodgePercentResourcePerClickIncreaseUpgrade = new upgrade("Tax heaven citizinship","Why pay taxes when you can move?");
+    taxdodgePercentResourcePerClickIncreaseUpgrade.imgPath = "img/placeholder.png";
+    taxdodgePercentResourcePerClickIncreaseUpgrade.listener = game;
+    taxdodgePercentResourcePerClickIncreaseUpgrade.prices = [1, 2, 3, 4];
+    taxdodgePercentResourcePerClickIncreaseUpgrade.upgradeCategory = "boostsUpgrades";
+    taxdodgePercentResourcePerClickIncreaseUpgrade.upgradeEffect = new boostUpgradeEffect(game.boosts[0]);
+    taxdodgePercentResourcePerClickIncreaseUpgrade.upgradeEffect.percentResourcePerClickIncrease = 0.2;
+    output.push(taxdodgePercentResourcePerClickIncreaseUpgrade);
+    
+    var marketingcampaignPercentResourcePerSecondIncreaseUpgrade = new upgrade("Agressive flyer distribution","Force ads and flyers into people's hands");
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.imgPath = "img/placeholder.png";
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.listener = game;
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.prices = [1, 2, 3, 4];
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.upgradeCategory = "boostsUpgrades";
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.upgradeEffect = new boostUpgradeEffect(game.boosts[1]);
+    marketingcampaignPercentResourcePerSecondIncreaseUpgrade.upgradeEffect.percentResourcePerSecondIncrease = 0.2;
+    output.push(marketingcampaignPercentResourcePerSecondIncreaseUpgrade);
+    
+    
     output.map(function(item) {
         item.initializeUI();
     });
@@ -267,8 +296,8 @@ function initializeBoosts(game){
     taxdodgeBoost.imgPath = "img/placeholder.png";
     taxdodgeBoost.listener = game;
     taxdodgeBoost.prices = [1, 2, 3, 4];
-    taxdodgeBoost.boostDuration = 300;
-    taxdodgeBoost.boostPercentPerClick = 0.2;
+    taxdodgeBoost.baseBoostDuration = 5;
+    taxdodgeBoost.baseBoostPercentPerClick = 0.2;
     output.push(taxdodgeBoost);
     
     var marketingcampaignBoost = new boost("Run a widespread marketing campaign","Your face on every streetcorner!");
@@ -276,8 +305,8 @@ function initializeBoosts(game){
     marketingcampaignBoost.imgPath = "img/placeholder.png";
     marketingcampaignBoost.listener = game;
     marketingcampaignBoost.prices = [1, 2, 3, 4];
-    marketingcampaignBoost.boostDuration = 600;
-    marketingcampaignBoost.boostPercentPerSecond = 0.2;
+    marketingcampaignBoost.baseBoostDuration = 3;
+    marketingcampaignBoost.baseBoostPercentPerSecond = 0.2;
     output.push(marketingcampaignBoost);
     
     

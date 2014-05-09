@@ -64,10 +64,9 @@ var game = function() {
     this.resources = initializeResources(this);
     this.buildings = initializeBuildings(this);
     this.jobs = initializeJobs(this);
-    this.upgrades = initializeUpgrades(this);
     this.boosts = initializeBoosts(this);
-
-
+    this.upgrades = initializeUpgrades(this);
+    
     this.handleTick = function() {
         this.resources.map(function(resource) {
             resource.handleTick();
@@ -507,10 +506,16 @@ var jobUpgradeEffect = function(job) {
 var boost = function(name, description) {
     this.name = name;
     this.description = description;
+    this.baseBoostDuration = 0;
     this.boostDuration = 0;
+    this.boostDurationMultiplier = 1;
     this.currentBoostTime = 0;
+    this.baseBoostPercentPerClick = 0;
     this.boostPercentPerClick = 0;
+    this.boostPercentPerClickMultiplier = 1;
+    this.baseBoostPercentPerSecond = 0;
     this.boostPercentPerSecond = 0;
+    this.boostPercentPerSecondMultiplier = 1;
     this.isEnabled;
     this.prices = [20, 0, 10, 10];
     this.resourceTarget = null;
@@ -520,22 +525,34 @@ var boost = function(name, description) {
     this.fireUpdate = function() {
         this.listener.handleItemBuy(this);
     };
+    
+    this.updateRewardAndBoostDuration = function() {
+        this.boostDuration = Math.round(this.baseBoostDuration * this.boostDurationMultiplier);
+        this.boostPercentPerClick = this.baseBoostPercentPerClick * this.boostPercentPerClickMultiplier;
+        this.boostPercentPerSecond = this.baseBoostPercentPerSecond * this.boostPercentPerSecondMultiplier;
+
+        this.productionLabel.innerHTML =
+                "Duration: " + formatTime(this.boostDuration) +"<br/><br/>" +
+                ((this.boostPercentPerClick > 0) ? "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerClick * 100, 2) + "%/click" : "") +
+                ((this.boostPercentPerSecond > 0) ? "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerSecond * 100, 2) + "%/second" : "")
+                ;
+    };
 
     this.setBoostStatus = function(isActive) {
         this.isEnabled = isActive;
         this.button.disabled = isActive;
-        
+
         if (isActive) {
             this.currentBoostTime = this.boostDuration;
-            this.counter = setInterval(this.countdownTimer, 1000);      
+            this.counter = setInterval(this.countdownTimer, 1000);
         }
-        if(!isActive){
+        if (!isActive) {
             this.listener.updateResourceIncrements();
         }
-        
+
         this.updateBoostTimeBar();
     };
-    
+
     this.countdownTimer = function() {
         if (this.currentBoostTime > 0) {
             this.currentBoostTime--;
@@ -583,11 +600,7 @@ var boost = function(name, description) {
 
         this.productionLabel = document.createElement("p");
         this.productionLabelIcon = getResourceGlyphicon(this.resourceTarget.name);
-        this.productionLabel.innerHTML =
-                ((this.boostPercentPerClick > 0) ? "Duration: " + formatTime(this.boostDuration) + "<br/><br/>+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerClick * 100, 2) + "%/click" : "") +
-                ((this.boostPercentPerSecond > 0) ? "Duration: " + formatTime(this.boostDuration) + "<br/><br/>+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerSecond * 100, 2) + "%/second" : "")
-                ;
-
+        this.updateRewardAndBoostDuration();
 
         this.button = document.createElement("button");
         this.button.setAttribute("class", "btn btn-default");
@@ -630,6 +643,35 @@ var boost = function(name, description) {
         this.boostTimeBarDiv.setAttribute("aria-valuenow", this.currentBoostTime);
         this.boostTimeBarDiv.style.width = ((this.currentBoostTime / this.boostDuration) * 100) + "%";
         this.boostTimeBarDiv.innerHTML = formatTime(this.currentBoostTime);
+    };
+
+};
+
+var boostUpgradeEffect = function(upgrade) {
+    this.boostTarget = upgrade;
+    this.percentBoostTimeIncrease = 0;
+    this.percentResourcePerClickIncrease = 0;
+    this.percentResourcePerSecondIncrease = 0;
+
+    this.applyUpgrade = function() {
+        this.boostTarget.boostDurationMultiplier += this.percentBoostTimeIncrease;
+        this.boostTarget.boostPercentPerClickMultiplier += this.percentResourcePerClickIncrease;
+        this.boostTarget.boostPercentPerSecondMultiplier += this.percentResourcePerSecondIncrease;
+        
+        this.boostTarget.updateRewardAndBoostDuration();
+    };
+
+    this.getResourceTarget = function() {
+        return this.boostTarget.resourceTarget.name;
+    };
+
+    this.getProductionLabelInnerHTML = function(icon) {
+        var innerHTML =
+                ((this.percentBoostTimeIncrease > 0) ? "+<span class='glyphicon glyphicon-time'></span>" + formatNumber((this.percentBoostTimeIncrease*100), 2) + "% boost duration<br/>" : "") +
+                ((this.percentResourcePerClickIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber((this.percentResourcePerClickIncrease) * 100, 2) + "%<br/>" : "") +
+                ((this.percentResourcePerSecondIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber((this.percentResourcePerSecondIncrease) * 100, 2) + "%" : "")
+                ;
+        return innerHTML;
     };
 
 };

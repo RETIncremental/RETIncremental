@@ -65,13 +65,27 @@ var game = function() {
     this.buildings = initializeBuildings(this);
     this.jobs = initializeJobs(this);
     this.boosts = initializeBoosts(this);
+    this.stockEntities = initializeStockEntities(this);
     this.upgrades = initializeUpgrades(this);
-    
+    this.time = 0;
+
     this.handleTick = function() {
         this.resources.map(function(resource) {
             resource.handleTick();
             resource.updateLabel();
         });
+        if (this.time % STOCK_UPDATE_INTERVAL === 0) {
+            this.stockEntities.map(function(stock) {
+                stock.handleTick();
+                stock.updatePrice();
+            });
+        }
+
+        if (this.time % SAVE_INTERVAL === 0) {
+            //saveGame();
+        }
+
+        this.time++;
     }.bind(this);
 
     this.tick = function() {
@@ -98,7 +112,22 @@ var game = function() {
                 item.setBoostStatus(true);
             }
 
+            if (item instanceof stockEntity) {
+                item.increaseAmountOwned();
+            }
+
             this.updateResourceIncrements();
+        }
+    };
+
+    this.handleItemSell = function(item) {
+        if (item.amountOwned > 0) {
+            for (var i = 0; i < 4; i++) {
+                this.resources[i].amount += item.prices[i];
+            }
+            if (item instanceof stockEntity) {
+                item.decreaseAmountOwned();
+            }
         }
     };
 
@@ -125,7 +154,8 @@ var building = function(name, description) {
     this.name = name;
     this.description = description;
     this.amountOwned = 0;
-    this.prices = [20, 0, 10, 10];
+    this.basePrices = [0, 0, 0, 0];
+    this.prices = this.basePrices;
     this.priceMultiplier = 1.45;
     this.resourceTarget = null;
     this.increasePerClick = 0;
@@ -155,18 +185,17 @@ var building = function(name, description) {
                 ;
     };
 
+    this.updatePrices = function() {
+        for (var i = 0; i < 4; i++) {
+            this.prices[i] = this.basePrices[i] * Math.pow(this.priceMultiplier, this.amountOwned);
+        }
+        this.updateUI();
+    };
+
     this.increaseAmountOwned = function() {
         this.amountOwned++;
-        this.prices = this.prices.map(function(x) {
-            return x * this.priceMultiplier;
-        }.bind(this));
-        this.label.innerHTML = this.name + " <span class='badge'>" + this.amountOwned + "</span>";
-        this.priceLabel.innerHTML =
-                ((this.prices[0] > 0) ? "<span class='glyphicon glyphicon-usd'></span>" + formatNumber(this.prices[0], 2) + "<br/>" : "") +
-                ((this.prices[1] > 0) ? "<span class='glyphicon glyphicon-globe'></span>" + formatNumber(this.prices[1, 2]) + "<br/>" : "") +
-                ((this.prices[2] > 0) ? "<span class='glyphicon glyphicon-user'></span>" + formatNumber(this.prices[2], 2) + "<br/>" : "") +
-                ((this.prices[3] > 0) ? "<span class='glyphicon glyphicon-screenshot'></span>" + formatNumber(this.prices[3], 2) : "");
-    }.bind(this);
+        this.updatePrices();
+    };
 
     this.initializeUI = function() {
         //UI
@@ -183,6 +212,7 @@ var building = function(name, description) {
             this.handleButtonOnmouseout(event);
         }.bind(this), false);
         this.priceLabel = document.createElement("p");
+        this.updatePrices();
         this.priceLabel.innerHTML =
                 ((this.prices[0] > 0) ? "<span class='glyphicon glyphicon-usd'></span> " + formatNumber(this.prices[0], 2) + "<br/>" : "") +
                 ((this.prices[1] > 0) ? "<span class='glyphicon glyphicon-globe'></span> " + formatNumber(this.prices[1], 2) + "<br/>" : "") +
@@ -204,6 +234,15 @@ var building = function(name, description) {
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.button);
 
         $("#buildings > .table-striped").append(this.tableRow);
+    };
+
+    this.updateUI = function() {
+        this.label.innerHTML = this.name + " <span class='badge'>" + this.amountOwned + "</span>";
+        this.priceLabel.innerHTML =
+                ((this.prices[0] > 0) ? "<span class='glyphicon glyphicon-usd'></span>" + formatNumber(this.prices[0], 2) + "<br/>" : "") +
+                ((this.prices[1] > 0) ? "<span class='glyphicon glyphicon-globe'></span>" + formatNumber(this.prices[1, 2]) + "<br/>" : "") +
+                ((this.prices[2] > 0) ? "<span class='glyphicon glyphicon-user'></span>" + formatNumber(this.prices[2], 2) + "<br/>" : "") +
+                ((this.prices[3] > 0) ? "<span class='glyphicon glyphicon-screenshot'></span>" + formatNumber(this.prices[3], 2) : "");
     };
 
     this.handleButtonOnmouseover = function(event) {
@@ -281,6 +320,12 @@ var upgrade = function(name, description) {
         $("#" + this.upgradeCategory + " > .table-striped").append(this.tableRow);
     };
 
+    this.updateUI = function() {
+        if (this.hasPurchased === true) {
+            this.disablePurchase();
+        }
+    };
+
     this.handleLabelOnmouseover = function(event) {
         $(".popup-div").remove();
         var mouseoverDiv = document.createElement("div");
@@ -334,7 +379,8 @@ var job = function(name, description) {
     this.description = description;
     this.xp = 0;
     this.level = 0;
-    this.xpNextLevel = 10;
+    this.baseXpNextLevel = 0;
+    this.xpNextLevel = this.baseXpNextLevel;
     this.xpReward = 3;
     this.xpNextLevelMultiplier = 1.3;
     this.currentTime = 0;
@@ -342,7 +388,7 @@ var job = function(name, description) {
     this.baseResetTime = 0;
     this.resetTimeMultiplier = 1;
     this.resourceTarget = null;
-    this.rewardAmount = 0;
+    this.rewardAmount = this.baseRewardAmount;
     this.baseRewardAmount = 0;
     this.rewardAmountMultiplier = 1;
     this.rewardAmountLevelUpMultiplier = 1.5;
@@ -350,7 +396,7 @@ var job = function(name, description) {
 
     this.updateRewardAndResetTime = function() {
         this.resetTime = Math.round(this.baseResetTime * this.resetTimeMultiplier);
-        this.rewardAmount = this.baseRewardAmount * this.rewardAmountMultiplier;
+        this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
 
         this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
     };
@@ -430,31 +476,37 @@ var job = function(name, description) {
             //set button label
             this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> " + formatTime(this.currentTime);
             //rewards
+            this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
             this.resourceTarget.amount += this.rewardAmount;
+            console.log(this.resourceTarget.amount);
 
             //xp stuff
             var xpSum = this.xp + this.xpReward;
+            this.xpNextLevel = this.baseXpNextLevel*Math.pow(this.xpNextLevelMultiplier,this.level);
             this.xp = xpSum % this.xpNextLevel;
             if (xpSum >= this.xpNextLevel) {
                 this.level++;
                 this.xpNextLevel *= this.xpNextLevelMultiplier;
-                this.baseRewardAmount *= this.rewardAmountLevelUpMultiplier;
-                this.rewardAmount = this.baseRewardAmount * this.rewardAmountMultiplier;
+                this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
 
                 //adjust rewards td
                 this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
             }
-            this.updateProgressBar();
+            this.updateUI();
 
             //countdown
-            this.counter = setInterval(this.countdownTimer, 1000);
+            this.startCountDown();
         }
+    };
+    
+    this.startCountDown = function(){
+      this.counter = setInterval(this.countdownTimer, 1000);  
     };
 
     //bind to "this" because it gets called from with setInterval()
     this.countdownTimer = function() {
         if (this.currentTime > 0) {
-            this.currentTime--;
+            this.currentTime = (this.currentTime >= 1) ? this.currentTime - 1 : 0;
             this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> " + formatTime(this.currentTime);
         }
         if (this.currentTime === 0) {
@@ -465,7 +517,12 @@ var job = function(name, description) {
 
     }.bind(this);
 
-    this.updateProgressBar = function() {
+    this.updateUI= function() {
+        //adjust rewards td
+        this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
+        this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
+            
+        this.xpNextLevel = this.baseXpNextLevel*Math.pow(this.xpNextLevelMultiplier,this.level);
         this.levelLabel.innerHTML = "Level: " + this.level;
         this.progressBarDiv.setAttribute("aria-valuenow", formatNumber(this.xp, 0));
         this.progressBarDiv.style.width = ((this.xp / this.xpNextLevel) * 100) + "%";
@@ -525,14 +582,14 @@ var boost = function(name, description) {
     this.fireUpdate = function() {
         this.listener.handleItemBuy(this);
     };
-    
+
     this.updateRewardAndBoostDuration = function() {
         this.boostDuration = Math.round(this.baseBoostDuration * this.boostDurationMultiplier);
         this.boostPercentPerClick = this.baseBoostPercentPerClick * this.boostPercentPerClickMultiplier;
         this.boostPercentPerSecond = this.baseBoostPercentPerSecond * this.boostPercentPerSecondMultiplier;
 
         this.productionLabel.innerHTML =
-                "Duration: " + formatTime(this.boostDuration) +"<br/><br/>" +
+                "Duration: " + formatTime(this.boostDuration) + "<br/><br/>" +
                 ((this.boostPercentPerClick > 0) ? "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerClick * 100, 2) + "%/click" : "") +
                 ((this.boostPercentPerSecond > 0) ? "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.boostPercentPerSecond * 100, 2) + "%/second" : "")
                 ;
@@ -657,7 +714,7 @@ var boostUpgradeEffect = function(upgrade) {
         this.boostTarget.boostDurationMultiplier += this.percentBoostTimeIncrease;
         this.boostTarget.boostPercentPerClickMultiplier += this.percentResourcePerClickIncrease;
         this.boostTarget.boostPercentPerSecondMultiplier += this.percentResourcePerSecondIncrease;
-        
+
         this.boostTarget.updateRewardAndBoostDuration();
     };
 
@@ -667,7 +724,7 @@ var boostUpgradeEffect = function(upgrade) {
 
     this.getProductionLabelInnerHTML = function(icon) {
         var innerHTML =
-                ((this.percentBoostTimeIncrease > 0) ? "+<span class='glyphicon glyphicon-time'></span>" + formatNumber((this.percentBoostTimeIncrease*100), 2) + "% boost duration<br/>" : "") +
+                ((this.percentBoostTimeIncrease > 0) ? "+<span class='glyphicon glyphicon-time'></span>" + formatNumber((this.percentBoostTimeIncrease * 100), 2) + "% boost duration<br/>" : "") +
                 ((this.percentResourcePerClickIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber((this.percentResourcePerClickIncrease) * 100, 2) + "%<br/>" : "") +
                 ((this.percentResourcePerSecondIncrease > 0) ? "+<span class='glyphicon glyphicon-" + icon + "'></span>" + formatNumber((this.percentResourcePerSecondIncrease) * 100, 2) + "%" : "")
                 ;
@@ -676,12 +733,205 @@ var boostUpgradeEffect = function(upgrade) {
 
 };
 
+var stockMarket = function() {
+    this.stockEntities = stockEntities;
+};
+
+var stockEntity = function() {
+    this.name = "";
+    this.description = "";
+    this.prices = [0, 0, 0, 0];
+    this.amountOwned = 0;
+    this.floorCap = 0;
+    this.ceilingCap = 0;
+    this.randIncrement = 0.00;
+    this.time = 0;
+    this.listener = null;
+    this.fireBuyUpdate = function() {
+        this.listener.handleItemBuy(this);
+    };
+
+    this.fireSellUpdate = function() {
+        this.listener.handleItemSell(this);
+    };
+
+    this.handleTick = function() {
+        var newPrice = this.prices[0] * (1 + (Math.random() > 0.50 ? -1 : 1) * this.randIncrement);
+        this.prices[0] = (newPrice <= this.ceilingCap && newPrice >= this.floorCap) ? newPrice : this.prices[0];
+    };
+
+    this.initializeUI = function() {
+
+        this.tableRow = document.createElement("tr");
+
+        this.stockLabel = document.createElement("p");
+        this.stockLabel.innerHTML = this.name;
+        this.stockLabel.addEventListener("mousemove", function(event) {
+            this.handleLabelOnmouseover(event);
+        }.bind(this), false);
+        this.stockLabel.addEventListener("mouseout", function(event) {
+            this.handleLabelOnmouseout(event);
+        }.bind(this), false);
+
+        this.priceLabel = document.createElement("p");
+        this.priceLabel.innerHTML = "<span class='glyphicon glyphicon-usd'></span>" + formatNumber(this.prices[0], 2) + "<br/>";
+
+        this.ownedLabel = document.createElement("p");
+        this.ownedLabel.innerHTML = this.amountOwned;
+
+        this.buyButton = document.createElement("button");
+        this.buyButton.setAttribute("class", "btn btn-default");
+        this.buyButton.innerHTML = "Buy stock";
+        this.buyButton.addEventListener("click", function(event) {
+            this.fireBuyUpdate(event);
+        }.bind(this), false);
+
+        this.sellButton = document.createElement("button");
+        this.sellButton.setAttribute("class", "btn btn-default");
+        this.sellButton.innerHTML = "Sell stock";
+        this.sellButton.addEventListener("click", function(event) {
+            this.fireSellUpdate(event);
+        }.bind(this), false);
+
+
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.stockLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.priceLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.ownedLabel);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.buyButton);
+        this.tableRow.appendChild(document.createElement("td")).appendChild(this.sellButton);
+
+        $("#stockmarket > .table-striped").append(this.tableRow);
+    };
+
+    this.updatePrice = function() {
+        this.priceLabel.innerHTML = "<span class='glyphicon glyphicon-usd'></span>" + formatNumber(this.prices[0], 2) + "<br/>";
+    };
+
+    this.updateOwned = function() {
+        this.ownedLabel.innerHTML = this.amountOwned;
+    };
+
+    this.increaseAmountOwned = function() {
+        this.amountOwned++;
+        this.updateOwned();
+    };
+
+    this.decreaseAmountOwned = function() {
+        this.amountOwned--;
+        this.updateOwned();
+    };
+
+    this.handleLabelOnmouseover = function(event) {
+        $(".popup-div").remove();
+        var mouseoverDiv = document.createElement("div");
+        mouseoverDiv.setAttribute("class", "popup-div");
+        var mouseoverLabel = document.createElement("p");
+        mouseoverLabel.innerHTML = this.description;
+        mouseoverDiv.appendChild(mouseoverLabel);
+        mouseoverDiv.style.top = (event.pageY + 5) + "px";
+        mouseoverDiv.style.left = (event.pageX + 5) + "px";
+        $("body").append(mouseoverDiv);
+    };
+
+    this.handleLabelOnmouseout = function() {
+        $(".popup-div").remove();
+    };
+};
+
 //Global variables
 
-var myGame = new game();
+var myGame = null;
+var STOCK_UPDATE_INTERVAL = 3;
+var SAVE_INTERVAL = 5;
+
+//Loading and saving
+
+function saveGame() {
+    if (typeof (Storage) !== "undefined") {
+        localStorage.clear();
+        localStorage.setItem("savedState", true);
+
+        //Resources
+        myGame.resources.map(function(resource) {
+            localStorage.setItem(resource.name + "Amount", resource.amount);
+        });
+
+        //Buildings
+        myGame.buildings.map(function(building) {
+            localStorage.setItem(building.name + "AmountOwned", building.amountOwned);
+        });
+
+        //Upgrades
+        myGame.upgrades.map(function(upgrade) {
+            localStorage.setItem(upgrade.name + "HasPurchased", upgrade.hasPurchased);
+        });
+        
+        //Jobs
+        myGame.jobs.map(function(job) {
+            localStorage.setItem(job.name + "XP", job.xp);
+            localStorage.setItem(job.name + "Level", job.level);
+            localStorage.setItem(job.name + "CurrentTime", job.currentTime);
+        });
+//        localStorage.setItem("buildings",JSON.stringify(myGame.buildings));
+//        localStorage.setItem("jobs",JSON.stringify(myGame.jobs));
+//        localStorage.setItem("boosts",JSON.stringify(myGame.boosts));
+//        localStorage.setItem("upgrades",JSON.stringify(myGame.upgrades));
+//        localStorage.setItem("stockEntities",JSON.stringify(myGame.stockEntities));
+//        localStorage.setItem("time",JSON.stringify(myGame.time));
+    } else {
+        // Sorry! No Web Storage support..
+    }
+}
+;
+
+function loadGame() {
+    if (typeof (Storage) !== "undefined") {
+        myGame = new game();
+        if (localStorage.getItem("savedState") !== null) {
+            //Resources
+            myGame.resources.map(function(resource) {
+                resource.amount = parseFloat(localStorage.getItem(resource.name + "Amount"));
+                resource.updateLabel();
+            });
+
+            //Buildings
+            myGame.buildings.map(function(building) {
+                building.amountOwned = parseFloat(localStorage.getItem(building.name + "AmountOwned"));
+                building.updatePrices();
+                building.updateUI();
+            });
+
+            //Upgrades
+            myGame.upgrades.map(function(upgrade) {
+                //JSON parse for getting boolean value out of string
+                upgrade.hasPurchased = JSON.parse(localStorage.getItem(upgrade.name + "HasPurchased"));
+                if (upgrade.hasPurchased) {
+                    upgrade.upgradeEffect.applyUpgrade();
+                }
+                upgrade.updateUI();
+            });
+            
+            //Jobs
+            myGame.jobs.map(function(job) {
+                job.xp = parseFloat(localStorage.getItem(job.name + "XP"));
+                job.level = parseFloat(localStorage.getItem(job.name + "Level"));
+                job.currentTime = parseFloat(localStorage.getItem(job.name + "CurrentTime"));
+                job.updateUI();
+                job.startCountDown();
+            });
+
+            myGame.updateResourceIncrements();
+        }
+
+    } else {
+        // Sorry! No Web Storage support..
+    }
+}
+;
 
 //Game loop
 
 $(document).ready(function() {
+    loadGame();
     myGame.tick();
 });

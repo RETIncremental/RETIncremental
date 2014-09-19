@@ -110,12 +110,16 @@
                 </div>
 
                 <div id="stockmarket" class="panel-body">
-                    This is the boosts div
+                    <table class="table-striped">
+                        <tr><th>Stock name</th><th>Price</th><th>Stock owned</th><th>Buy</th><th>Sell</th></tr>
+                    </table>
                 </div>
             </div>
 
 
             <footer>
+                <input type="button" onclick="saveGame()" value="Save"/>
+                <input type="button" onclick="localStorage.clear()" value="Clear local storage"/>
                 <p><a href="http://www.reddit.com/u/RETIncremental">/u/RETIncremental</a></p>
             </footer>
         </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>

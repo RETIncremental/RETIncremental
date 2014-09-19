@@ -7,7 +7,7 @@ function initializeResources() {
     var output = [];
 
     var moneyResource = new resource("Money");
-    moneyResource.increasePerClick = 14567891230;
+    moneyResource.increasePerClick = 1;
     moneyResource.increasePerSecond = 1;
     moneyResource.iconClassName = "glyphicon glyphicon-usd";
     output.push(moneyResource);
@@ -44,7 +44,7 @@ function initializeBuildings(game) {
     hotdogstandBuilding.imgPath = "img/placeholder.png";
     hotdogstandBuilding.listener = game;
     hotdogstandBuilding.resourceTarget = game.resources[0];
-    hotdogstandBuilding.prices = [30, 2, 3, 0];
+    hotdogstandBuilding.basePrices = [30, 2, 3, 0];
     hotdogstandBuilding.baseIncreasePerSecond = 10;
     hotdogstandBuilding.baseIncreasePerClick = 10;
     output.push(hotdogstandBuilding);
@@ -53,7 +53,7 @@ function initializeBuildings(game) {
     icecreamBuilding.imgPath = "img/placeholder.png";
     icecreamBuilding.listener = game;
     icecreamBuilding.resourceTarget = game.resources[1];
-    icecreamBuilding.prices = [5, 20, 3, 2];
+    icecreamBuilding.basePrices = [30, 2, 3, 0];
     icecreamBuilding.baseIncreasePerSecond = 10;
     icecreamBuilding.baseIncreasePerClick = 0;
     output.push(icecreamBuilding);
@@ -62,7 +62,7 @@ function initializeBuildings(game) {
     waynetowersBuilding.imgPath = "img/placeholder.png";
     waynetowersBuilding.listener = game;
     waynetowersBuilding.resourceTarget = game.resources[3];
-    waynetowersBuilding.prices = [500, 200, 330, 222];
+    waynetowersBuilding.basePrices = [30, 2, 3, 0];
     waynetowersBuilding.baseIncreasePerSecond = 0;
     waynetowersBuilding.baseIncreasePerClick = 100;
     output.push(waynetowersBuilding);
@@ -71,7 +71,7 @@ function initializeBuildings(game) {
     mallBuilding.imgPath = "img/placeholder.png";
     mallBuilding.listener = game;
     mallBuilding.resourceTarget = game.resources[2];
-    mallBuilding.prices = [100, 200, 300, 400];
+    mallBuilding.basePrices = [30, 2, 3, 0];
     mallBuilding.baseIncreasePerSecond = 5000;
     mallBuilding.baseIncreasePerClick = 5000;
     output.push(mallBuilding);
@@ -80,7 +80,7 @@ function initializeBuildings(game) {
     piramidBuilding.imgPath = "img/placeholder.png";
     piramidBuilding.listener = game;
     piramidBuilding.resourceTarget = game.resources[3];
-    piramidBuilding.prices = [1000, 2000, 3000, 4000];
+    piramidBuilding.basePrices = [30, 2, 3, 0];
     piramidBuilding.baseIncreasePerSecond = 1234567;
     piramidBuilding.baseIncreasePerClick = 1234567;
     output.push(piramidBuilding);
@@ -99,7 +99,7 @@ var initializeUpgrades = function(game) {
 
     //Click upgrads
 
-    var icecreamStandFlatClickUpgrade1 = new upgrade("Icecream stand refrigerator upgrade", "More ice, more coolness!");
+    var icecreamStandFlatClickUpgrade1 = new upgrade("1", "More ice, more coolness!");
     icecreamStandFlatClickUpgrade1.imgPath = "img/placeholder.png";
     icecreamStandFlatClickUpgrade1.listener = game;
     icecreamStandFlatClickUpgrade1.prices = [1, 2, 3, 4];
@@ -109,7 +109,7 @@ var initializeUpgrades = function(game) {
     icecreamStandFlatClickUpgrade1.upgradeEffect.flatPerSecondIncrement = 10;
     output.push(icecreamStandFlatClickUpgrade1);
 
-    var icecreamStandFlatClickUpgrade2 = new upgrade("Icecream stand refrigerator upgrade 2", "Ice, anybody?");
+    var icecreamStandFlatClickUpgrade2 = new upgrade("2", "Ice, anybody?");
     icecreamStandFlatClickUpgrade2.imgPath = "img/placeholder.png";
     icecreamStandFlatClickUpgrade2.listener = game;
     icecreamStandFlatClickUpgrade2.prices = [1, 2, 3, 4];
@@ -118,7 +118,7 @@ var initializeUpgrades = function(game) {
     icecreamStandFlatClickUpgrade2.upgradeEffect.flatPerClickIncrement = 100;
     output.push(icecreamStandFlatClickUpgrade2);
 
-    var icecreamStandPercentageClickUpgrade1 = new upgrade("Icecream stand marketing revamp", "Mo' clients, mo' moneyz");
+    var icecreamStandPercentageClickUpgrade1 = new upgrade("3", "Mo' clients, mo' moneyz");
     icecreamStandPercentageClickUpgrade1.imgPath = "img/placeholder.png";
     icecreamStandPercentageClickUpgrade1.listener = game;
     icecreamStandPercentageClickUpgrade1.prices = [1, 2, 3, 4];
@@ -127,7 +127,7 @@ var initializeUpgrades = function(game) {
     icecreamStandPercentageClickUpgrade1.upgradeEffect.percentPerClickIncrement = 0.05;
     output.push(icecreamStandPercentageClickUpgrade1);
 
-    var icecreamStandPercentageClickUpgrade2 = new upgrade("Icecream stand marketing revamp 2", "Mo' clients, mo' moneyz");
+    var icecreamStandPercentageClickUpgrade2 = new upgrade("4", "Mo' clients, mo' moneyz");
     icecreamStandPercentageClickUpgrade2.imgPath = "img/placeholder.png";
     icecreamStandPercentageClickUpgrade2.listener = game;
     icecreamStandPercentageClickUpgrade2.prices = [1, 2, 3, 4];
@@ -138,7 +138,7 @@ var initializeUpgrades = function(game) {
 
     //Percentage upgrades
 
-    var icecreamStandFlatSecondUpgrade1 = new upgrade("Icecream stand refrigerator upgrade", "More ice, more coolness!");
+    var icecreamStandFlatSecondUpgrade1 = new upgrade("5", "More ice, more coolness!");
     icecreamStandFlatSecondUpgrade1.imgPath = "img/placeholder.png";
     icecreamStandFlatSecondUpgrade1.listener = game;
     icecreamStandFlatSecondUpgrade1.prices = [1, 2, 3, 4];
@@ -147,7 +147,7 @@ var initializeUpgrades = function(game) {
     icecreamStandFlatSecondUpgrade1.upgradeEffect.flatPerSecondIncrement = 10;
     output.push(icecreamStandFlatSecondUpgrade1);
 
-    var icecreamStandFlatSecondUpgrade2 = new upgrade("Icecream stand refrigerator upgrade 2", "Ice, anybody?");
+    var icecreamStandFlatSecondUpgrade2 = new upgrade("6", "Ice, anybody?");
     icecreamStandFlatSecondUpgrade2.imgPath = "img/placeholder.png";
     icecreamStandFlatSecondUpgrade2.listener = game;
     icecreamStandFlatSecondUpgrade2.prices = [1, 2, 3, 4];
@@ -156,7 +156,7 @@ var initializeUpgrades = function(game) {
     icecreamStandFlatSecondUpgrade2.upgradeEffect.flatPerSecondIncrement = 100;
     output.push(icecreamStandFlatSecondUpgrade2);
 
-    var icecreamStandPercentageSecondUpgrade1 = new upgrade("Icecream stand marketing revamp", "Mo' clients, mo' moneyz");
+    var icecreamStandPercentageSecondUpgrade1 = new upgrade("7", "Mo' clients, mo' moneyz");
     icecreamStandPercentageSecondUpgrade1.imgPath = "img/placeholder.png";
     icecreamStandPercentageSecondUpgrade1.listener = game;
     icecreamStandPercentageSecondUpgrade1.prices = [1, 2, 3, 4];
@@ -165,7 +165,7 @@ var initializeUpgrades = function(game) {
     icecreamStandPercentageSecondUpgrade1.upgradeEffect.percentPerSecondIncrement = 0.05;
     output.push(icecreamStandPercentageSecondUpgrade1);
 
-    var icecreamStandPercentageSecondUpgrade2 = new upgrade("Icecream stand marketing revamp 2", "Mo' clients, mo' moneyz");
+    var icecreamStandPercentageSecondUpgrade2 = new upgrade("8", "Mo' clients, mo' moneyz");
     icecreamStandPercentageSecondUpgrade2.imgPath = "img/placeholder.png";
     icecreamStandPercentageSecondUpgrade2.listener = game;
     icecreamStandPercentageSecondUpgrade2.prices = [1, 2, 3, 4];
@@ -234,7 +234,7 @@ var initializeUpgrades = function(game) {
     taxdodgePercentBoostDurationUpgrade.upgradeEffect.percentBoostTimeIncrease = 0.2;
     output.push(taxdodgePercentBoostDurationUpgrade);
     
-    var taxdodgePercentResourcePerClickIncreaseUpgrade = new upgrade("Tax heaven citizinship","Why pay taxes when you can move?");
+    var taxdodgePercentResourcePerClickIncreaseUpgrade = new upgrade("Tax heaven citizenship","Why pay taxes when you can move?");
     taxdodgePercentResourcePerClickIncreaseUpgrade.imgPath = "img/placeholder.png";
     taxdodgePercentResourcePerClickIncreaseUpgrade.listener = game;
     taxdodgePercentResourcePerClickIncreaseUpgrade.prices = [1, 2, 3, 4];
@@ -266,19 +266,22 @@ function initializeJobs(game) {
     var flipBurgers = new job("Flip burgers in a local burgershop","Who lives in a pineapple under the sea?");
     flipBurgers.resourceTarget = game.resources[0];
     flipBurgers.baseRewardAmount = 10;
-    flipBurgers.baseResetTime = 10;
+    flipBurgers.baseResetTime = 1;
+    flipBurgers.baseXpNextLevel =10;
     output.push(flipBurgers);
     
     var sellIcecream = new job("Sell icecream on the street","Icecream man, ring your bell!");
     sellIcecream.resourceTarget = game.resources[1];
     sellIcecream.baseRewardAmount = 33;
     sellIcecream.baseResetTime = 10;
+    sellIcecream.baseXpNextLevel =5;
     output.push(sellIcecream);
     
     var beatupRivals = new job("Beat up some small fish real estate agents","Gotta show 'em who's boss!");
     beatupRivals.resourceTarget = game.resources[2];
     beatupRivals.baseRewardAmount = 60;
     beatupRivals.baseResetTime = 10;
+    beatupRivals.baseXpNextLevel =3;
     output.push(beatupRivals);
 
     output.map(function(item) {
@@ -314,5 +317,36 @@ function initializeBoosts(game){
         item.initializeUI();
     });
 
+    return output;
+}
+
+function initializeStockEntities(game){
+    var output  =[];
+    var microhard = new stockEntity();
+    microhard.name = "Microhard";
+    microhard.description = "One of the mayor players in the hardware industry. Vaguely familiar...";
+    microhard.prices[0] = 10;
+    microhard.listener = game;
+    microhard.amountowned = 0;
+    microhard.floorCap = 5;
+    microhard.ceilingCap = 20;
+    microhard.randIncrement = 0.10;
+    output.push(microhard);
+    
+    var dpoil = new stockEntity();
+    dpoil.name = "DPOil";
+    dpoil.description = "Fossil fuel, presented to you by a dubious company!";
+    dpoil.prices[0] = 100;
+    dpoil.listener = game;
+    dpoil.amountowned = 0;
+    dpoil.floorCap = 75;
+    dpoil.ceilingCap = 300;
+    dpoil.randIncrement = 0.05;
+    output.push(dpoil);
+    
+     output.map(function(item) {
+        item.initializeUI();
+    });
+    
     return output;
 }

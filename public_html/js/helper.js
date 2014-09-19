@@ -21,14 +21,16 @@ function formatNumber(value, precision)
 
 //@param time in seconds!
 function formatTime(time){
-    var secondsRaw = time%60;
-    var secondsString = (secondsRaw.toString().length > 1)? secondsRaw : "0"+secondsRaw;
+    var milisRaw = Math.floor((time%1)*1000);
+    var milisString = (milisRaw.toString().length > 1) ? (milisRaw.toString().length > 2) ? milisRaw : "0"+milisRaw : "00"+milisRaw;
+    var secondsRaw = Math.floor(time%60);
+    var secondsString =(secondsRaw.toString().length > 1)? secondsRaw : "0"+secondsRaw;
     var minutesRaw = (Math.floor(time/60))%60;
     var minutesString = (minutesRaw.toString().length > 1) ? minutesRaw : "0"+minutesRaw;
     var hoursRaw  = (Math.floor(time/(60*60)))%24;
     var hoursString = (hoursRaw.toString().length > 1 ) ? hoursRaw : "0"+hoursRaw;
     var days = Math.floor(time/(60*60*24));
-    return (days >= 1) ? days+"d - "+hoursString+":"+minutesString+":"+secondsString : hoursString+":"+minutesString+":"+secondsString;
+    return (days >= 1) ? days+"d - "+hoursString+":"+minutesString+":"+secondsString+":"+milisString : hoursString+":"+minutesString+":"+secondsString+":"+milisString;
 }
 
 function getResourceGlyphicon(name){

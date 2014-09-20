@@ -148,6 +148,8 @@ var game = function() {
             }
         });
     }.bind(this);
+
+
 };
 
 var building = function(name, description) {
@@ -396,7 +398,7 @@ var job = function(name, description) {
 
     this.updateRewardAndResetTime = function() {
         this.resetTime = Math.round(this.baseResetTime * this.resetTimeMultiplier);
-        this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
+        this.rewardAmount = this.baseRewardAmount * Math.pow(this.rewardAmountLevelUpMultiplier, this.level);
 
         this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
     };
@@ -476,18 +478,18 @@ var job = function(name, description) {
             //set button label
             this.button.innerHTML = "<span class='glyphicon glyphicon-time'></span> " + formatTime(this.currentTime);
             //rewards
-            this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
+            this.rewardAmount = this.baseRewardAmount * Math.pow(this.rewardAmountLevelUpMultiplier, this.level);
             this.resourceTarget.amount += this.rewardAmount;
             console.log(this.resourceTarget.amount);
 
             //xp stuff
             var xpSum = this.xp + this.xpReward;
-            this.xpNextLevel = this.baseXpNextLevel*Math.pow(this.xpNextLevelMultiplier,this.level);
+            this.xpNextLevel = this.baseXpNextLevel * Math.pow(this.xpNextLevelMultiplier, this.level);
             this.xp = xpSum % this.xpNextLevel;
             if (xpSum >= this.xpNextLevel) {
                 this.level++;
                 this.xpNextLevel *= this.xpNextLevelMultiplier;
-                this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
+                this.rewardAmount = this.baseRewardAmount * Math.pow(this.rewardAmountLevelUpMultiplier, this.level);
 
                 //adjust rewards td
                 this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
@@ -498,9 +500,9 @@ var job = function(name, description) {
             this.startCountDown();
         }
     };
-    
-    this.startCountDown = function(){
-      this.counter = setInterval(this.countdownTimer, 1000);  
+
+    this.startCountDown = function() {
+        this.counter = setInterval(this.countdownTimer, 1000);
     };
 
     //bind to "this" because it gets called from with setInterval()
@@ -517,12 +519,12 @@ var job = function(name, description) {
 
     }.bind(this);
 
-    this.updateUI= function() {
+    this.updateUI = function() {
         //adjust rewards td
-        this.rewardAmount = this.baseRewardAmount*Math.pow(this.rewardAmountLevelUpMultiplier,this.level);
+        this.rewardAmount = this.baseRewardAmount * Math.pow(this.rewardAmountLevelUpMultiplier, this.level);
         this.productionLabel.innerHTML = "+<span class='glyphicon glyphicon-" + this.productionLabelIcon + "'></span>" + formatNumber(this.rewardAmount, 2);
-            
-        this.xpNextLevel = this.baseXpNextLevel*Math.pow(this.xpNextLevelMultiplier,this.level);
+
+        this.xpNextLevel = this.baseXpNextLevel * Math.pow(this.xpNextLevelMultiplier, this.level);
         this.levelLabel.innerHTML = "Level: " + this.level;
         this.progressBarDiv.setAttribute("aria-valuenow", formatNumber(this.xp, 0));
         this.progressBarDiv.style.width = ((this.xp / this.xpNextLevel) * 100) + "%";
@@ -573,7 +575,7 @@ var boost = function(name, description) {
     this.baseBoostPercentPerSecond = 0;
     this.boostPercentPerSecond = 0;
     this.boostPercentPerSecondMultiplier = 1;
-    this.isEnabled;
+    this.isEnabled = false;
     this.prices = [20, 0, 10, 10];
     this.resourceTarget = null;
     this.imgPath = "";
@@ -601,13 +603,21 @@ var boost = function(name, description) {
 
         if (isActive) {
             this.currentBoostTime = this.boostDuration;
-            this.counter = setInterval(this.countdownTimer, 1000);
+            this.startCountDownTimer();
         }
         if (!isActive) {
             this.listener.updateResourceIncrements();
         }
 
         this.updateBoostTimeBar();
+    };
+    
+    this.disableButton = function(){
+        this.button.disabled = true;
+    };
+
+    this.startCountDownTimer = function() {
+        this.counter = setInterval(this.countdownTimer, 1000);
     };
 
     this.countdownTimer = function() {
@@ -865,12 +875,18 @@ function saveGame() {
         myGame.upgrades.map(function(upgrade) {
             localStorage.setItem(upgrade.name + "HasPurchased", upgrade.hasPurchased);
         });
-        
+
         //Jobs
         myGame.jobs.map(function(job) {
             localStorage.setItem(job.name + "XP", job.xp);
             localStorage.setItem(job.name + "Level", job.level);
             localStorage.setItem(job.name + "CurrentTime", job.currentTime);
+        });
+
+        //Boosts
+        myGame.boosts.map(function(boost) {
+            localStorage.setItem(boost.name + "CurrentBoostTime", boost.currentBoostTime);
+            localStorage.setItem(boost.name + "IsEnabled", boost.isEnabled);
         });
 //        localStorage.setItem("buildings",JSON.stringify(myGame.buildings));
 //        localStorage.setItem("jobs",JSON.stringify(myGame.jobs));
@@ -910,7 +926,7 @@ function loadGame() {
                 }
                 upgrade.updateUI();
             });
-            
+
             //Jobs
             myGame.jobs.map(function(job) {
                 job.xp = parseFloat(localStorage.getItem(job.name + "XP"));
@@ -918,6 +934,19 @@ function loadGame() {
                 job.currentTime = parseFloat(localStorage.getItem(job.name + "CurrentTime"));
                 job.updateUI();
                 job.startCountDown();
+            });
+
+            //Boosts
+            myGame.boosts.map(function(boost) {
+                boost.currentBoostTime = parseFloat(localStorage.getItem(boost.name + "CurrentBoostTime"));
+                var herp = localStorage.getItem(boost.name + "IsEnabled");
+                console.log(boost.name + " " + herp);
+                boost.isEnabled = JSON.parse(localStorage.getItem(boost.name + "IsEnabled"));
+                boost.updateBoostTimeBar();
+                if (boost.isEnabled) {
+                    boost.startCountDownTimer();
+                    boost.disableButton();
+                }
             });
 
             myGame.updateResourceIncrements();

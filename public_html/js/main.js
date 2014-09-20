@@ -743,10 +743,6 @@ var boostUpgradeEffect = function(upgrade) {
 
 };
 
-var stockMarket = function() {
-    this.stockEntities = stockEntities;
-};
-
 var stockEntity = function() {
     this.name = "";
     this.description = "";
@@ -755,7 +751,6 @@ var stockEntity = function() {
     this.floorCap = 0;
     this.ceilingCap = 0;
     this.randIncrement = 0.00;
-    this.time = 0;
     this.listener = null;
     this.fireBuyUpdate = function() {
         this.listener.handleItemBuy(this);
@@ -888,6 +883,12 @@ function saveGame() {
             localStorage.setItem(boost.name + "CurrentBoostTime", boost.currentBoostTime);
             localStorage.setItem(boost.name + "IsEnabled", boost.isEnabled);
         });
+        
+        //Stockmarket
+        myGame.stockEntities.map(function(stock) {
+            localStorage.setItem(stock.name + "Prices", JSON.stringify(stock.prices));
+            localStorage.setItem(stock.name + "AmountOwned", stock.amountOwned);
+        });
 //        localStorage.setItem("buildings",JSON.stringify(myGame.buildings));
 //        localStorage.setItem("jobs",JSON.stringify(myGame.jobs));
 //        localStorage.setItem("boosts",JSON.stringify(myGame.boosts));
@@ -939,14 +940,19 @@ function loadGame() {
             //Boosts
             myGame.boosts.map(function(boost) {
                 boost.currentBoostTime = parseFloat(localStorage.getItem(boost.name + "CurrentBoostTime"));
-                var herp = localStorage.getItem(boost.name + "IsEnabled");
-                console.log(boost.name + " " + herp);
                 boost.isEnabled = JSON.parse(localStorage.getItem(boost.name + "IsEnabled"));
                 boost.updateBoostTimeBar();
                 if (boost.isEnabled) {
                     boost.startCountDownTimer();
                     boost.disableButton();
                 }
+            });
+            
+            //StockEntities
+            myGame.stockEntities.map(function(stock) {
+                stock.prices = JSON.parse(localStorage.getItem(stock.name + "Prices"));
+                stock.amountOwned = localStorage.getItem(stock.name + "AmountOwned");
+                stock.updateOwned();
             });
 
             myGame.updateResourceIncrements();

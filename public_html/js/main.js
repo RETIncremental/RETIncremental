@@ -3,15 +3,21 @@
 var resource = function(name) {
     this.name = name;
     this.amount = 0;
+    this.totalSecondAmount = 0;
+    this.totalClickAmount = 0;
+    this.totalJobAmount = 0;
+    this.totalStockAmount = 0;
     this.increasePerSecond = 0;
     this.increasePerClick = 0;
     this.iconClassName = getResourceGlyphicon(this.name);
 
     this.handleTick = function() {
         this.amount += this.increasePerSecond;
+        this.totalSecondAmount += this.increasePerSecond;
     };
     this.handleClick = function() {
         this.amount += this.increasePerClick;
+        this.totalClickAmount += this.increasePerClick;
     };
 
     //UI
@@ -82,10 +88,12 @@ var game = function() {
         }
 
         if (this.time % SAVE_INTERVAL === 0) {
-            //saveGame();
+            saveGame();
         }
 
         this.time++;
+        
+        updateStatistics();
     }.bind(this);
 
     this.tick = function() {
@@ -202,9 +210,9 @@ var building = function(name, description) {
     this.initializeUI = function() {
         //UI
         this.tableRow = document.createElement("tr");
-        this.img = document.createElement("img");
-        this.img.setAttribute("src", this.imgPath);
-        this.img.setAttribute("class", "buildingImg");
+//        this.img = document.createElement("img");
+//        this.img.setAttribute("src", this.imgPath);
+//        this.img.setAttribute("class", "buildingImg");
         this.label = document.createElement("p");
         this.label.innerHTML = this.name + " <span class='badge'>" + this.amountOwned + "</span>";
         this.label.addEventListener("mousemove", function(event) {
@@ -229,7 +237,7 @@ var building = function(name, description) {
             this.fireUpdate();
         }.bind(this), false);
 
-        this.tableRow.appendChild(document.createElement("td")).appendChild(this.img);
+        //this.tableRow.appendChild(document.createElement("td")).appendChild(this.img);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.label);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.priceLabel);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.productionLabel);
@@ -285,9 +293,9 @@ var upgrade = function(name, description) {
     this.initializeUI = function() {
         //UI
         this.tableRow = document.createElement("tr");
-        this.img = document.createElement("img");
-        this.img.setAttribute("src", this.imgPath);
-        this.img.setAttribute("class", "buildingImg");
+//        this.img = document.createElement("img");
+//        this.img.setAttribute("src", this.imgPath);
+//        this.img.setAttribute("class", "buildingImg");
         this.label = document.createElement("p");
         this.label.innerHTML = this.name;
         this.label.addEventListener("mousemove", function(event) {
@@ -313,7 +321,7 @@ var upgrade = function(name, description) {
             this.fireUpdate();
         }.bind(this), false);
 
-        this.tableRow.appendChild(document.createElement("td")).appendChild(this.img);
+        //this.tableRow.appendChild(document.createElement("td")).appendChild(this.img);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.label);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.priceLabel);
         this.tableRow.appendChild(document.createElement("td")).appendChild(this.productionLabel);
@@ -438,6 +446,7 @@ var job = function(name, description) {
 
 
         this.button = document.createElement("button");
+        this.button.setAttribute("class", "btn btn-default");
         this.button.innerHTML = "Do job";
         this.button.addEventListener("click", function(event) {
             this.handleButtonClick(event);
@@ -480,7 +489,7 @@ var job = function(name, description) {
             //rewards
             this.rewardAmount = this.baseRewardAmount * Math.pow(this.rewardAmountLevelUpMultiplier, this.level);
             this.resourceTarget.amount += this.rewardAmount;
-            console.log(this.resourceTarget.amount);
+            this.resourceTarget.totalJobAmount += this.rewardAmount;
 
             //xp stuff
             var xpSum = this.xp + this.xpReward;
@@ -611,8 +620,8 @@ var boost = function(name, description) {
 
         this.updateBoostTimeBar();
     };
-    
-    this.disableButton = function(){
+
+    this.disableButton = function() {
         this.button.disabled = true;
     };
 
@@ -843,11 +852,44 @@ var stockEntity = function() {
     };
 };
 
+//Statistics
+
+function updateStatistics(){
+    $(".statistics >.table").empty();
+    myGame.resources.map(function(resource){
+        var headerRow = document.createElement("tr");
+        var resourceNameLabel = document.createElement("p");
+        resourceNameLabel.innerHTML = resource.name;
+        headerRow.appendChild(document.createElement("th")).appendChild(resourceNameLabel);
+        headerRow.appendChild(document.createElement("th"));
+        $(".statistics > .table").append(headerRow);
+        
+        var totalSecondAmountStat = document.createElement("tr");
+        var totalSecondAmountLabel = document.createElement("p");
+        totalSecondAmountLabel.innerHTML = "Gained by idling";
+        var totalSecondAmountValue = document.createElement("p");
+        totalSecondAmountValue.innerHTML = formatNumber(resource.totalSecondAmount,2);
+        totalSecondAmountStat.appendChild(document.createElement("td")).appendChild(totalSecondAmountLabel);
+        totalSecondAmountStat.appendChild(document.createElement("td")).appendChild(totalSecondAmountValue);
+        $(".statistics > .table").append(totalSecondAmountStat);
+        
+        var totalClickAmountStat = document.createElement("tr");
+        var totalClickAmountLabel = document.createElement("p");
+        totalClickAmountLabel.innerHTML = "Gained by clicking";
+        var totalClickAmountValue = document.createElement("p");
+        totalClickAmountValue.innerHTML = formatNumber(resource.totalClickAmount,2);
+        totalClickAmountStat.appendChild(document.createElement("td")).appendChild(totalClickAmountLabel);
+        totalClickAmountStat.appendChild(document.createElement("td")).appendChild(totalClickAmountValue);
+        
+         $(".statistics > .table").append(totalClickAmountStat);
+    });
+};
+
 //Global variables
 
 var myGame = null;
 var STOCK_UPDATE_INTERVAL = 3;
-var SAVE_INTERVAL = 5;
+var SAVE_INTERVAL = 10;
 
 //Loading and saving
 
@@ -883,20 +925,20 @@ function saveGame() {
             localStorage.setItem(boost.name + "CurrentBoostTime", boost.currentBoostTime);
             localStorage.setItem(boost.name + "IsEnabled", boost.isEnabled);
         });
-        
+
         //Stockmarket
         myGame.stockEntities.map(function(stock) {
             localStorage.setItem(stock.name + "Prices", JSON.stringify(stock.prices));
             localStorage.setItem(stock.name + "AmountOwned", stock.amountOwned);
         });
-//        localStorage.setItem("buildings",JSON.stringify(myGame.buildings));
-//        localStorage.setItem("jobs",JSON.stringify(myGame.jobs));
-//        localStorage.setItem("boosts",JSON.stringify(myGame.boosts));
-//        localStorage.setItem("upgrades",JSON.stringify(myGame.upgrades));
-//        localStorage.setItem("stockEntities",JSON.stringify(myGame.stockEntities));
-//        localStorage.setItem("time",JSON.stringify(myGame.time));
+
+        //Console
+        var consoleText = $("#consoleText").html();
+        localStorage.setItem("Console", consoleText);
+
+        log("Saved game");
     } else {
-        // Sorry! No Web Storage support..
+        log("Error: browser does not support LocalStorage");
     }
 }
 ;
@@ -947,7 +989,7 @@ function loadGame() {
                     boost.disableButton();
                 }
             });
-            
+
             //StockEntities
             myGame.stockEntities.map(function(stock) {
                 stock.prices = JSON.parse(localStorage.getItem(stock.name + "Prices"));
@@ -955,7 +997,13 @@ function loadGame() {
                 stock.updateOwned();
             });
 
+            //Console
+            var consoleText = localStorage.getItem("Console");
+            $("#consoleText").html(consoleText);
+
             myGame.updateResourceIncrements();
+
+            log("Loaded game");
         }
 
     } else {

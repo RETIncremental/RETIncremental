@@ -44,9 +44,9 @@ function initializeBuildings(game) {
     hotdogstandBuilding.imgPath = "img/placeholder.png";
     hotdogstandBuilding.listener = game;
     hotdogstandBuilding.resourceTarget = game.resources[0];
-    hotdogstandBuilding.basePrices = [30, 2, 3, 0];
-    hotdogstandBuilding.baseIncreasePerSecond = 10;
-    hotdogstandBuilding.baseIncreasePerClick = 10;
+    hotdogstandBuilding.basePrices = [10, 100, 1000, 1];
+    hotdogstandBuilding.baseIncreasePerSecond = 5;
+    hotdogstandBuilding.baseIncreasePerClick = 5;
     output.push(hotdogstandBuilding);
 
     var icecreamBuilding = new building("Icecream stand", "Mmm, icecream!");
@@ -329,7 +329,7 @@ function initializeStockEntities(game){
     microhard.listener = game;
     microhard.amountowned = 0;
     microhard.floorCap = 5;
-    microhard.ceilingCap = 20;
+    microhard.ceilingCap = 10;
     microhard.randIncrement = 0.10;
     output.push(microhard);
     

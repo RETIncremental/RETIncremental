@@ -23,13 +23,10 @@
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
     <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container">
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -37,19 +34,62 @@
                     </button>
                     <a class="navbar-brand" href="#">Real Estate Tycoon: Incremental</a>
                 </div>
-                <div class="navbar-collapse collapse">
-                </div><!--/.navbar-collapse -->
-            </div>
-        </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+
+                        <li><a href="#" onclick="showStatistics(true)"><span class="glyphicon glyphicon-stats"></span> Statistics</a></li>
+                        <li><a href="#" onclick="showSettings(true)"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
 
         <div class="container">
-            <h3>Resources</h3>
-            <p>A little manual labor never hurt anyone. Click to gather resources!</p>
-            <hr/>
-            <div id="resources">
-
+            <div class="panel panel-default settings">
+                <div class="exitButton" onclick="showSettings(false)"><span class="glyphicon glyphicon-remove-circle"></span></div>
+                <h3>Settings</h3>
+                <hr>
+                <table class="table-condensed">
+                    <tr>
+                        <td><input type="button" class="btn btn-primary" onclick="saveGame()" value="Save"/></td>
+                        <td>Click here to manually save your progress</td>
+                    </tr>
+                    <tr>
+                        <td><input type="button" class="btn btn-danger" onclick="localStorage.clear();location.reload()" value="Hard reset game"/></td>
+                        <td>Click here to erase all progress and start over (!Warning, this is irreversable!)</td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" name="save_interval" min="1"><input type="button" onclick="adjustSaveInterval()" value="Adjust"></td>
+                        <td>Adjust the seconds between automatic saving (min: 1s)</td>
+                    </tr>
+                    <tr>
+                        <td><input type="button" class="btn btn-primary" onclick="showConsole(true)" value="Show Console"/></td>
+                        <td>Click here to show the console</td>
+                    </tr>
+                    <tr>
+                        <td><input type="button" class="btn btn-primary" onclick="showBuildingEffeciencyTooltip(true)" value="Enable building tooltip"/></td>         
+                        <td>Click here to show building price effeciency</td>
+                    </tr>
+                </table>
             </div>
-            <hr/>
+            <div class="panel panel-default statistics">
+                <div class="exitButton" onclick="showStatistics(false)"><span class="glyphicon glyphicon-remove-circle"></span></div>
+                <h3>Statistics</h3>
+                <hr>
+                <table class="table">
+                    <tr><th>Value</th><th>Amount</th></tr>
+                </table>
+            </div>
+            <div class="panel panel-default">
+                <h3>Resources</h3>
+                <p>A little manual labor never hurt anyone. Click to gather resources!</p>
+                <div id="resources">
+
+                </div>
+            </div>
+
+            <div class="panel panel-default"/>
             <ul class="nav nav-pills mainMenu">
                 <li class="active"><a id="buildingsTabLink" href="#">Buildings</a></li>
                 <li><a id="upgradesTabLink" href="#">Upgrades</a></li>
@@ -57,80 +97,85 @@
                 <li><a id="boostsTabLink" href="#">Boosts</a></li>
                 <li><a id="stockmarketTabLink" href="#">Stockmarket</a></li>
             </ul>
-            <div class="panel panel-default features">
-                <div id="buildings" class="panel-body">
-                    <h3>Buy buildings that generate resources</h3>
-                    <p>The cost of buildings will exponentially rise with each purchase.</p>
-                    <table class="table-striped">
-                        <tr><th></th><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
-                    </table>
-                </div>
-
-                <div id="upgrades" class="panel-body">
-                    <h3>Buy upgrades to improve various stuff</h3>
-                    <ul class="nav nav-pills upgradesSubMenu">
-                        <li class="active"><a id="buildingsUpgradesTabLink" href="#">Building upgrades</a></li>
-                        <li><a id="jobsUpgradesTabLink" href="#">Jobs upgrades</a></li>
-                        <li><a id="boostsUpgradesTabLink" href="#">Boost upgrades</a></li>
-                    </ul>
-                    <div class="panel panel-default upgradeTypes">
-                        <div id="buildingsUpgrades" class="panel-body">
-                            <h4>Building Upgrades</h4>
-                            <table class="table-striped">
-                                <tr><th></th><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
-                            </table>
-                        </div>
-                        <div id="jobsUpgrades" class="panel-body">
-                            <h4>Job Upgrades</h4>
-                            <table class="table-striped">
-                                <tr><th></th><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
-                            </table>
-                        </div>
-                        <div id="boostsUpgrades" class="panel-body">
-                            <h4>Boost Upgrades</h4>
-                            <table class="table-striped">
-                                <tr><th></th><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="jobs" class="panel-body">
-                    <h3>Earn your resources the hard way by doing jobs</h3>
-                    <p>Every time you finish a job, you will gain XP for that job. Rewards per job scale with level.</p>
-                    <table class="table-striped">
-                        <tr><th>Name</th><th>Level</th><th>Rewards</th><th></th></tr>
-                    </table>
-                </div>
-                <div id="boosts" class="panel-body">
-                    <table class="table-striped">
-                        <tr><th>Name</th><th>Remaining boost time</th><th>Boost effect</th><th>Price</th><th></th></tr>
-                    </table>
-                </div>
-
-                <div id="stockmarket" class="panel-body">
-                    <table class="table-striped">
-                        <tr><th>Stock name</th><th>Price</th><th>Stock owned</th><th>Buy</th><th>Sell</th></tr>
-                    </table>
-                </div>
+        </div>
+        <div class="panel panel-default features">
+            <div id="buildings" class="panel-body">
+                <h3>Buy buildings that generate resources</h3>
+                <p>The cost of buildings will exponentially rise with each purchase.</p>
+                <table class="table-striped">
+                    <tr><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
+                </table>
             </div>
 
+            <div id="upgrades" class="panel-body">
+                <h3>Buy upgrades to improve various stuff</h3>
+                <ul class="nav nav-pills upgradesSubMenu">
+                    <li class="active"><a id="buildingsUpgradesTabLink" href="#">Building upgrades</a></li>
+                    <li><a id="jobsUpgradesTabLink" href="#">Jobs upgrades</a></li>
+                    <li><a id="boostsUpgradesTabLink" href="#">Boost upgrades</a></li>
+                </ul>
+                <div class="panel panel-default upgradeTypes">
+                    <div id="buildingsUpgrades" class="panel-body">
+                        <h4>Building Upgrades</h4>
+                        <table class="table-striped">
+                            <tr><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
+                        </table>
+                    </div>
+                    <div id="jobsUpgrades" class="panel-body">
+                        <h4>Job Upgrades</h4>
+                        <table class="table-striped">
+                            <tr><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
+                        </table>
+                    </div>
+                    <div id="boostsUpgrades" class="panel-body">
+                        <h4>Boost Upgrades</h4>
+                        <table class="table-striped">
+                            <tr><th>Name</th><th>Price</th><th>Production</th><th></th></tr>
+                        </table>
+                    </div>
+                </div>
 
-            <footer>
-                <input type="button" onclick="saveGame()" value="Save"/>
-                <input type="button" onclick="localStorage.clear()" value="Clear local storage"/>
-                <p><a href="http://www.reddit.com/u/RETIncremental">/u/RETIncremental</a></p>
-            </footer>
-        </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.js"><\/script>')</script>
+            </div>
 
-        <script src="js/vendor/bootstrap.min.js"></script>
+            <div id="jobs" class="panel-body">
+                <h3>Earn your resources the hard way by doing jobs</h3>
+                <p>Every time you finish a job, you will gain XP for that job. Rewards per job scale with level.</p>
+                <table class="table-striped">
+                    <tr><th>Name</th><th>Level</th><th>Rewards</th><th></th></tr>
+                </table>
+            </div>
+            <div id="boosts" class="panel-body">
+                <table class="table-striped">
+                    <tr><th>Name</th><th>Remaining boost time</th><th>Boost effect</th><th>Price</th><th></th></tr>
+                </table>
+            </div>
 
-        <script src="js/helper.js"></script>
-        <script src="js/dataInitialisation.js"></script>
-        <script src="js/main.js"></script>
+            <div id="stockmarket" class="panel-body">
+                <table class="table-striped">
+                    <tr><th>Stock name</th><th>Price</th><th>Stock owned</th><th>Buy</th><th>Sell</th></tr>
+                </table>
+            </div>
+        </div>
+        <div class="panel panel-default console">
+            <div class="exitButton" onclick="showConsole(false)"><span class="glyphicon glyphicon-remove-circle"></span></div>
+            <h3>Console</h3>
+            <p id="consoleText">Beep Boop, I am console: welcome to RETIncremental!</p>
+        </div>
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-    </body>
+        <footer>
+            <div class="panel panel-default">
+                <p><a href="http://www.reddit.com/u/RETIncremental">/u/RETIncremental</a> - PM for reporting bugs, comments, ideas, etc...</p>
+            </div>
+        </footer>
+    </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.js"><\/script>')</script>
+
+    <script src="js/vendor/bootstrap.min.js"></script>
+    <script src="js/base64.js"></script>
+    <script src="js/helper.js"></script>
+    <script src="js/dataInitialisation.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+</body>
 </html>s

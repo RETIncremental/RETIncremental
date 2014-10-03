@@ -3,15 +3,53 @@
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+body{
+    background:#129990;
+}
 
+#settingsList{
+    list-style: none;
+}
 
+#settingsList li{
+    margin-top:5px;
+}
+
+.exitButton{
+    float:right;
+    margin-top:2px;
+    margin-right:2px;
+}
+
+.exitButton:hover{
+    cursor:pointer;
+}
+
+.console{
+    display:none;
+}
+
+.settings{
+    display:none;
+}
+
+.statistics{
+    display:none;
+}
+
+#consoleText{
+    height:200px;
+    overflow-y: scroll;
+    overflow-x:hidden;
+}
 .panel-default{
     margin-top:10px;
     margin-bottom:10px;
+    padding:10px;
 }
 
 .nav-pills{
-    margin-top:10px;
+
 }
 
 #resources{
@@ -23,29 +61,21 @@
 }
 
 .popup-div {
-  position:absolute;
-  z-index:200; /* aaaalways on top*/
-  padding: 5px;
-  margin-left: 10px;
-  margin-top: 5px;
-  //width: 250px;
-  border: 1px solid black;
-  border-radius: 5px;
-  background-color: grey;
-  color: white;
-  font-size: 0.95em;
-}
-
-#buildings{
-
+    position:absolute;
+    z-index:200; /* always on top*/
+    padding: 5px;
+    margin-left: 10px;
+    margin-top: 5px;
+    //width: 250px;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #00635D;
+    color: white;
+    font-size: 0.95em;
 }
 
 #upgrades{
     display:none;
-}
-
-.upgradesSubMenu {
-
 }
 
 .upgradesSubMenu.nav-pills>li.active>a, .upgradesSubMenu.nav-pills>li.active>a:hover, .upgradesSubMenu.nav-pills>li.active>a:focus{
@@ -75,12 +105,6 @@
 #stockmarket{
     display:none;
 }
-
-.nav .nav-pills a{
-    
-}
-
-.features{}
 
 .table-striped{
     margin-top:20px;

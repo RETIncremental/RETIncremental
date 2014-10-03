@@ -13,19 +13,19 @@ function initializeResources() {
     output.push(moneyResource);
 
     var politicalResource = new resource("Political power");
-    politicalResource.increasePerClick = 10;
+    politicalResource.increasePerClick = 1;
     politicalResource.increasePerSecond = 1;
     politicalResource.iconClassName = "glyphicon glyphicon-globe";
     output.push(politicalResource);
 
     var socialResource = new resource("Social influence");
-    socialResource.increasePerClick = 10;
+    socialResource.increasePerClick = 1;
     socialResource.increasePerSecond = 1;
     socialResource.iconClassName = "glyphicon glyphicon-user";
     output.push(socialResource);
 
     var criminalResource = new resource("Criminal power");
-    criminalResource.increasePerClick = 10;
+    criminalResource.increasePerClick = 1;
     criminalResource.increasePerSecond = 1;
     criminalResource.iconClassName = "glyphicon glyphicon-screenshot";
     output.push(criminalResource);

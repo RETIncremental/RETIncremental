@@ -112,18 +112,22 @@ var game = function() {
             }
             if (item instanceof building) {
                 item.increaseAmountOwned();
+                log("Building '"+item.name+"' bought.");
             }
             if (item instanceof upgrade) {
                 item.upgradeEffect.applyUpgrade();
                 item.disablePurchase();
+                log("Upgrade '"+item.name+"' bought.");
             }
             if (item instanceof boost) {
                 item.setBoostStatus(true);
+                log("Boost '"+item.name+"' bought.");
             }
 
             if (item instanceof stockEntity) {
                 item.increaseAmountOwned();
                 this.resources[0].totalStockBought += item.prices[0];
+                log("Stock '"+item.name+"' bought.");
             }
 
             this.updateResourceIncrements();
@@ -138,6 +142,7 @@ var game = function() {
             if (item instanceof stockEntity) {
                 item.decreaseAmountOwned();
                 this.resources[0].totalStockSold += item.prices[0];
+                log("Stock '"+item.name+"' sold.");
             }
         }
     };
@@ -553,6 +558,8 @@ var job = function(name, description) {
 
             //countdown
             this.startCountDown();
+            
+            log("Job '"+this.name+"' performed.");
         }
     };
 
@@ -683,6 +690,7 @@ var boost = function(name, description) {
         if (this.currentBoostTime === 0) {
             clearInterval(this.counter);
             this.setBoostStatus(false);
+            log("Boost '"+this.name+"' expired.");
         }
         this.updateBoostTimeBar();
 
@@ -904,8 +912,8 @@ var stockEntity = function() {
 //Global variables
 
 var myGame = null;
-var STOCK_UPDATE_INTERVAL = 3;
-var SAVE_INTERVAL = 10;
+var STOCK_UPDATE_INTERVAL = 5;
+var SAVE_INTERVAL = 30;
 var SHOW_BUILDING_EFFICIENCY = false;
 
 //Game loop

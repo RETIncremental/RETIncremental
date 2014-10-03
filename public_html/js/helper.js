@@ -1,5 +1,5 @@
 var suffixes = ['', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
-var MAX_CONSOLE_LINES = 50;
+var MAX_CONSOLE_LINES = 100;
 var VERSION = 0.01;
 
 function formatNumber(value, precision)
@@ -292,6 +292,7 @@ function adjustSaveInterval() {
     var newInterval = parseInt($("input[name='save_interval']").val());
     if (newInterval >= 1) {
         SAVE_INTERVAL = newInterval;
+        log("Save interval adjusted to: "+newInterval);
     }
 }
 ;
@@ -315,9 +316,11 @@ $(".nav.nav-pills.upgradesSubMenu").click(function(event) {
 function showConsole(show) {
     if (show) {
         $(".console").show();
+        log("Console enabled");
     }
     else {
         $(".console").hide();
+        log("Console hidden");
     }
 }
 ;
@@ -325,9 +328,11 @@ function showConsole(show) {
 function showSettings(show) {
     if (show) {
         $(".settings").show();
+        log("Settings enabled");
     }
     else {
         $(".settings").hide();
+        log("Settings hidden");
     }
 }
 ;
@@ -335,9 +340,11 @@ function showSettings(show) {
 function showStatistics(show) {
     if (show) {
         $(".statistics").show();
+        log("Statistics enabled");
     }
     else {
         $(".statistics").hide();
+        log("Statistics hidden");
     }
 }
 ;
@@ -345,10 +352,16 @@ function showStatistics(show) {
 function showBuildingEffeciencyTooltip(show) {
     if (show) {
         SHOW_BUILDING_EFFICIENCY = true;
+        log("Building efficiency enabled");
     }
     else {
         SHOW_BUILDING_EFFICIENCY = false;
+        log("Building efficiency hidden");
     }
 
 }
 ;
+
+function resetGame(){
+    localStorage.clear();location.reload();
+}

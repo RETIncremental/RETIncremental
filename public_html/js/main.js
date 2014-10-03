@@ -1,5 +1,5 @@
 //Prototypes
-
+{
 var resource = function(name) {
     this.name = name;
     this.amount = 0;
@@ -151,7 +151,7 @@ var game = function() {
     this.updateResourceIncrements = function() {
         this.resources.map(function(resource) {
             resource.increasePerClick = 1;
-            resource.increasePerSecond = 1;
+            resource.increasePerSecond = 0;
         });
         this.buildings.map(function(building) {
             building.resourceTarget.increasePerClick += building.increasePerClick * building.amountOwned;
@@ -174,7 +174,7 @@ var building = function(name, description) {
     this.amountOwned = 0;
     this.basePrices = [0, 0, 0, 0];
     this.prices = this.basePrices;
-    this.priceMultiplier = 1.45;
+    this.priceMultiplier = 1;
     this.resourceTarget = null;
     this.increasePerClick = 0;
     this.baseIncreasePerClick = 0;
@@ -908,14 +908,14 @@ var stockEntity = function() {
         $(".popup-div").remove();
     };
 };
-
+}
 //Global variables
-
+{
 var myGame = null;
 var STOCK_UPDATE_INTERVAL = 5;
-var SAVE_INTERVAL = 30;
+var SAVE_INTERVAL = 30000;
 var SHOW_BUILDING_EFFICIENCY = false;
-
+}
 //Game loop
 
 $(document).ready(function() {

@@ -8,25 +8,25 @@ function initializeResources() {
 
     var moneyResource = new resource("Money");
     moneyResource.increasePerClick = 1;
-    moneyResource.increasePerSecond = 1;
+    moneyResource.increasePerSecond = 0;
     moneyResource.iconClassName = "glyphicon glyphicon-usd";
     output.push(moneyResource);
 
     var politicalResource = new resource("Political power");
     politicalResource.increasePerClick = 1;
-    politicalResource.increasePerSecond = 1;
+    politicalResource.increasePerSecond = 0;
     politicalResource.iconClassName = "glyphicon glyphicon-globe";
     output.push(politicalResource);
 
     var socialResource = new resource("Social influence");
     socialResource.increasePerClick = 1;
-    socialResource.increasePerSecond = 1;
+    socialResource.increasePerSecond = 0;
     socialResource.iconClassName = "glyphicon glyphicon-user";
     output.push(socialResource);
 
     var criminalResource = new resource("Criminal power");
     criminalResource.increasePerClick = 1;
-    criminalResource.increasePerSecond = 1;
+    criminalResource.increasePerSecond = 0;
     criminalResource.iconClassName = "glyphicon glyphicon-screenshot";
     output.push(criminalResource);
 
@@ -40,50 +40,49 @@ function initializeResources() {
 function initializeBuildings(game) {
     var output = [];
 
+//    var dummyBuilding = new building("Hotdog stand", "Who doesn't like a greasy hotdog?");
+//    dummyBuilding.listener = game;
+//    dummyBuilding.resourceTarget = game.resources[0];
+//    dummyBuilding.basePrices = [10, 100, 1000, 1];
+//    dummyBuilding.baseIncreasePerSecond = 5;
+//    dummyBuilding.baseIncreasePerClick = 5;
+//    output.push(dummyBuilding);
+
+//money - political - social - criminal
+
+    //Lowest tier buildings
+
+    var newspaperstandBuilding = new building("Newspaper stand", "Extra, extra! Read the news!");
+    newspaperstandBuilding.listener = game;
+    newspaperstandBuilding.resourceTarget = game.resources[1];
+    newspaperstandBuilding.basePrices = [100, 30, 0, 0];
+    newspaperstandBuilding.priceMultiplier = 1.02;
+    newspaperstandBuilding.baseIncreasePerClick = 1;
+    output.push(newspaperstandBuilding);
+    
+    var downtownBarBuilding = new building("Downtown bar", "Shady looking bar. Attracts some funny characters.");
+    downtownBarBuilding.listener = game;
+    downtownBarBuilding.resourceTarget = game.resources[2];
+    downtownBarBuilding.basePrices = [100, 0, 30, 0];
+    downtownBarBuilding.priceMultiplier = 1.02;
+    downtownBarBuilding.baseIncreasePerClick = 1;
+    output.push(downtownBarBuilding);
+
     var hotdogstandBuilding = new building("Hotdog stand", "Who doesn't like a greasy hotdog?");
-    hotdogstandBuilding.imgPath = "img/placeholder.png";
     hotdogstandBuilding.listener = game;
     hotdogstandBuilding.resourceTarget = game.resources[0];
-    hotdogstandBuilding.basePrices = [10, 100, 1000, 1];
-    hotdogstandBuilding.baseIncreasePerSecond = 5;
-    hotdogstandBuilding.baseIncreasePerClick = 5;
+    hotdogstandBuilding.basePrices = [200, 0, 0, 0];
+    hotdogstandBuilding.priceMultiplier = 1.02;
+    hotdogstandBuilding.baseIncreasePerClick = 1;
     output.push(hotdogstandBuilding);
 
-    var icecreamBuilding = new building("Icecream stand", "Mmm, icecream!");
-    icecreamBuilding.imgPath = "img/placeholder.png";
-    icecreamBuilding.listener = game;
-    icecreamBuilding.resourceTarget = game.resources[1];
-    icecreamBuilding.basePrices = [30, 2, 3, 0];
-    icecreamBuilding.baseIncreasePerSecond = 10;
-    icecreamBuilding.baseIncreasePerClick = 0;
-    output.push(icecreamBuilding);
-
-    var waynetowersBuilding = new building("Wayne Towers", "Somebody has to pay for the batmobile!");
-    waynetowersBuilding.imgPath = "img/placeholder.png";
-    waynetowersBuilding.listener = game;
-    waynetowersBuilding.resourceTarget = game.resources[3];
-    waynetowersBuilding.basePrices = [30, 2, 3, 0];
-    waynetowersBuilding.baseIncreasePerSecond = 0;
-    waynetowersBuilding.baseIncreasePerClick = 100;
-    output.push(waynetowersBuilding);
-
-    var mallBuilding = new building("Mall", "Let's go to the mall, today!");
-    mallBuilding.imgPath = "img/placeholder.png";
-    mallBuilding.listener = game;
-    mallBuilding.resourceTarget = game.resources[2];
-    mallBuilding.basePrices = [30, 2, 3, 0];
-    mallBuilding.baseIncreasePerSecond = 5000;
-    mallBuilding.baseIncreasePerClick = 5000;
-    output.push(mallBuilding);
-
-    var piramidBuilding = new building("Great Pyramid of Giza", "Mausoleum, RETI style!");
-    piramidBuilding.imgPath = "img/placeholder.png";
-    piramidBuilding.listener = game;
-    piramidBuilding.resourceTarget = game.resources[3];
-    piramidBuilding.basePrices = [30, 2, 3, 0];
-    piramidBuilding.baseIncreasePerSecond = 1234567;
-    piramidBuilding.baseIncreasePerClick = 1234567;
-    output.push(piramidBuilding);
+    var stolenGoodsShopBuilding = new building("Stolen goods fence", "A shop that specializes in 'hot' items.");
+    stolenGoodsShopBuilding.listener = game;
+    stolenGoodsShopBuilding.resourceTarget = game.resources[3];
+    stolenGoodsShopBuilding.basePrices = [100, 0, 0, 30];
+    stolenGoodsShopBuilding.priceMultiplier = 1.02;
+    stolenGoodsShopBuilding.baseIncreasePerClick = 1;
+    output.push(stolenGoodsShopBuilding);
 
     output.map(function(item) {
         item.initializeUI();
